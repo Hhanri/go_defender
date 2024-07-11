@@ -119,3 +119,16 @@ func (d *Defender[T]) Cleanup() {
 		}
 	}
 }
+
+// use this inside a Goroutine
+func (d *Defender[T]) CleanupTask(quitCh <-chan struct{}) {
+	t := time.NewTicker(d.Duration * Factor)
+	for {
+		select {
+		case <-quitCh:
+			return
+		case <-t.C:
+			d.Cleanup()
+		}
+	}
+}
